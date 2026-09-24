@@ -11,7 +11,7 @@ import java.util.*;
 import java.rmi.RemoteException;
 import java.io.*;
 
-public class ResourceManager implements IResourceManager
+public class ResourceManager implements IResourceManager, IInventoryResourceManager
 {
 	protected String m_name = "";
 	protected RMHashMap m_data = new RMHashMap();
@@ -50,7 +50,7 @@ public class ResourceManager implements IResourceManager
 	}
 
 	// Deletes the encar item
-	protected boolean deleteItem(String key)
+	protected synchronized boolean deleteItem(String key)
 	{
 		Trace.info("RM::deleteItem(" + key + ") called");
 		ReservableItem curObj = (ReservableItem)readData(key);
@@ -105,7 +105,7 @@ public class ResourceManager implements IResourceManager
 	}
 
 	// Reserve an item
-	protected boolean reserveItem(int customerID, String key, String location)
+	protected synchronized boolean reserveItem(int customerID, String key, String location)
 	{
 		Trace.info("RM::reserveItem(customer=" + customerID + ", " + key + ", " + location + ") called" );        
 		// Read customer object if it exists (and read lock it)
@@ -145,7 +145,7 @@ public class ResourceManager implements IResourceManager
 
 	// Atomically reserves inventory for a middleware-managed customer.
 	// Returns the unit price on success and -1 when the request cannot be filled.
-	public int reserveInventory(String key, int count) throws RemoteException
+	public synchronized int reserveInventory(String key, int count) throws RemoteException
 	{
 		if (count <= 0)
 		{
@@ -167,7 +167,7 @@ public class ResourceManager implements IResourceManager
 	}
 
 	// Atomically restores inventory when a customer is deleted or a bundle rolls back.
-	public boolean releaseInventory(String key, int count) throws RemoteException
+	public synchronized boolean releaseInventory(String key, int count) throws RemoteException
 	{
 		if (count <= 0)
 		{
@@ -190,7 +190,7 @@ public class ResourceManager implements IResourceManager
 
 	// Create a new flight, or add seats to existing flight
 	// NOTE: if flightPrice <= 0 and the flight already exists, it maintains its current price
-	public boolean addFlight(int flightNum, int flightSeats, int flightPrice) throws RemoteException
+	public synchronized boolean addFlight(int flightNum, int flightSeats, int flightPrice) throws RemoteException
 	{
 		Trace.info("RM::addFlight(" + flightNum + ", " + flightSeats + ", $" + flightPrice + ") called");
 		Flight curObj = (Flight)readData(Flight.getKey(flightNum));
@@ -217,7 +217,7 @@ public class ResourceManager implements IResourceManager
 
 	// Create a new car location or add cars to an existing location
 	// NOTE: if price <= 0 and the location already exists, it maintains its current price
-	public boolean addCars(String location, int count, int price) throws RemoteException
+	public synchronized boolean addCars(String location, int count, int price) throws RemoteException
 	{
 		Trace.info("RM::addCars(" + location + ", " + count + ", $" + price + ") called");
 		Car curObj = (Car)readData(Car.getKey(location));
@@ -244,7 +244,7 @@ public class ResourceManager implements IResourceManager
 
 	// Create a new room location or add rooms to an existing location
 	// NOTE: if price <= 0 and the room location already exists, it maintains its current price
-	public boolean addRooms(String location, int count, int price) throws RemoteException
+	public synchronized boolean addRooms(String location, int count, int price) throws RemoteException
 	{
 		Trace.info("RM::addRooms(" + location + ", " + count + ", $" + price + ") called");
 		Room curObj = (Room)readData(Room.getKey(location));
@@ -339,7 +339,7 @@ public class ResourceManager implements IResourceManager
 		}
 	}
 
-	public int newCustomer() throws RemoteException
+	public synchronized int newCustomer() throws RemoteException
 	{
         	Trace.info("RM::newCustomer() called");
 		// Generate a globally unique ID for the new customer; if it generates duplicates for you, then adjust
@@ -351,7 +351,7 @@ public class ResourceManager implements IResourceManager
 		return cid;
 	}
 
-	public boolean newCustomer(int customerID) throws RemoteException
+	public synchronized boolean newCustomer(int customerID) throws RemoteException
 	{
 		Trace.info("RM::newCustomer(" + customerID + ") called");
 		Customer customer = (Customer)readData(Customer.getKey(customerID));
@@ -369,7 +369,7 @@ public class ResourceManager implements IResourceManager
 		}
 	}
 
-	public boolean deleteCustomer(int customerID) throws RemoteException
+	public synchronized boolean deleteCustomer(int customerID) throws RemoteException
 	{
 		Trace.info("RM::deleteCustomer(" + customerID + ") called");
 		Customer customer = (Customer)readData(Customer.getKey(customerID));

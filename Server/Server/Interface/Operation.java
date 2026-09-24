@@ -1,0 +1,31 @@
+package Server.Interface;
+
+import java.io.Serializable;
+
+/** Operations supported by the transport-neutral TCP request envelope. */
+public enum Operation implements Serializable
+{
+	ADD_FLIGHT,
+	ADD_CARS,
+	ADD_ROOMS,
+	NEW_CUSTOMER,
+	NEW_CUSTOMER_ID,
+	DELETE_FLIGHT,
+	DELETE_CARS,
+	DELETE_ROOMS,
+	DELETE_CUSTOMER,
+	QUERY_FLIGHT,
+	QUERY_CARS,
+	QUERY_ROOMS,
+	QUERY_CUSTOMER_INFO,
+	QUERY_FLIGHT_PRICE,
+	QUERY_CARS_PRICE,
+	QUERY_ROOMS_PRICE,
+	RESERVE_FLIGHT,
+	RESERVE_CAR,
+	RESERVE_ROOM,
+	BUNDLE,
+	GET_NAME,
+	RESERVE_INVENTORY,
+	RELEASE_INVENTORY
+}
