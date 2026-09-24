@@ -143,6 +143,51 @@ public class ResourceManager implements IResourceManager
 		}        
 	}
 
+	// Atomically reserves inventory for a middleware-managed customer.
+	// Returns the unit price on success and -1 when the request cannot be filled.
+	public int reserveInventory(String key, int count) throws RemoteException
+	{
+		if (count <= 0)
+		{
+			return -1;
+		}
+
+		synchronized (m_data)
+		{
+			ReservableItem item = (ReservableItem)m_data.get(key);
+			if (item == null || item.getCount() < count)
+			{
+				return -1;
+			}
+
+			item.setCount(item.getCount() - count);
+			item.setReserved(item.getReserved() + count);
+			return item.getPrice();
+		}
+	}
+
+	// Atomically restores inventory when a customer is deleted or a bundle rolls back.
+	public boolean releaseInventory(String key, int count) throws RemoteException
+	{
+		if (count <= 0)
+		{
+			return false;
+		}
+
+		synchronized (m_data)
+		{
+			ReservableItem item = (ReservableItem)m_data.get(key);
+			if (item == null || item.getReserved() < count)
+			{
+				return false;
+			}
+
+			item.setReserved(item.getReserved() - count);
+			item.setCount(item.getCount() + count);
+			return true;
+		}
+	}
+
 	// Create a new flight, or add seats to existing flight
 	// NOTE: if flightPrice <= 0 and the flight already exists, it maintains its current price
 	public boolean addFlight(int flightNum, int flightSeats, int flightPrice) throws RemoteException

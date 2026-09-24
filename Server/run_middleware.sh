@@ -1,8 +1,11 @@
-./run_rmi.sh > /dev/null
+#!/bin/bash
 
-echo "Edit file run_middleware.sh to include instructions for launching the middleware"
-echo '  $1 - hostname of Flights'
-echo '  $2 - hostname of Cars'
-echo '  $3 - hostname of Rooms'
+# Usage: ./run_middleware.sh <flight-host> <car-host> <room-host>
 
-# java -Djava.rmi.server.codebase=file:$(pwd)/ Server.RMI.RMIMiddleware $1 $2 $3
+if [ "$#" -ne 3 ]; then
+	echo "Usage: $0 <flight-host> <car-host> <room-host>" >&2
+	exit 1
+fi
+
+./run_rmi.sh > /dev/null 2>&1
+java -Djava.rmi.server.codebase=file:$(pwd)/ Server.RMI.RMIMiddleware "$1" "$2" "$3"

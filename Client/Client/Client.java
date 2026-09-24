@@ -429,8 +429,17 @@ public abstract class Client
 		return (Integer.valueOf(string)).intValue();
 	}
 
-	public static boolean toBoolean(String string)// throws Exception
+	public static boolean toBoolean(String string)
 	{
-		return (Boolean.valueOf(string)).booleanValue();
+		String value = string.trim().toLowerCase();
+		if (value.equals("true") || value.equals("yes") || value.equals("y") || value.equals("1"))
+		{
+			return true;
+		}
+		if (value.equals("false") || value.equals("no") || value.equals("n") || value.equals("0"))
+		{
+			return false;
+		}
+		throw new IllegalArgumentException("Expected a boolean value (true/false, yes/no, y/n, or 1/0), received '" + string + "'");
 	}
 }
